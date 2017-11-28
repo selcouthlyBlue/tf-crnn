@@ -5,10 +5,6 @@ import argparse
 import os
 import csv
 import numpy as np
-try:
-    import better_exceptions
-except ImportError:
-    pass
 from tqdm import trange
 import tensorflow as tf
 from src.model import crnn_fn
@@ -83,8 +79,8 @@ if __name__ == '__main__':
     # Count number of image filenames in csv
     n_samples = 0
     for file in parameters.csv_files_eval:
-        with open(file, 'r', encoding='utf8') as csvfile:
-            reader = csv.reader(csvfile, delimiter=parameters.csv_delimiter)
+        with open(file, 'r', encoding='utf8') as csv_file:
+            reader = csv.reader(csv_file, delimiter=parameters.csv_delimiter)
             n_samples += len(list(reader))
 
     try:

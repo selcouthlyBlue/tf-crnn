@@ -6,10 +6,6 @@ from src.model import crnn_fn
 import tensorflow as tf
 import os
 import argparse
-try:
-    import better_exceptions
-except ImportError:
-    pass
 from src.config import Params, import_params_from_json
 
 
@@ -43,17 +39,3 @@ if __name__ == '__main__':
 
     estimator.export_savedmodel(args.get('export_dir'),
                                 serving_input_receiver_fn=preprocess_image_for_prediction(min_width=10))
-
-
-#
-# def _signature_def_to_tensors(signature_def):
-#     g = tf.get_default_graph()
-#     return {k: g.get_tensor_by_name(v.name) for k,v in signature_def.inputs.items()}, \
-#            {k: g.get_tensor_by_name(v.name) for k,v in signature_def.outputs.items()}
-#
-# with tf.Session(graph=tf.Graph()) as sess:
-#     loaded_model = tf.saved_model.loader.load(sess, ["serve"], './exported_models/1499264748/')
-#     input_dict, output_dict =_signature_def_to_tensors(loaded_model.signature_def['predictions'])
-#     out = sess.run(output_dict, feed_dict={input_dict['images']: img_test[:,:,None]})
-
-# to see all : saved_model_cli show --dir . --all

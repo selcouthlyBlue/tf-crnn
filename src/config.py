@@ -11,12 +11,12 @@ class CONST:
     DIMENSION_REDUCTION_W_POOLING = 2*2  # 2x2 pooling in dimension W on layer 1 and 2
 
 
+# noinspection SpellCheckingInspection,SpellCheckingInspection
 class Alphabet:
     LettersLowercase = 'abcdefghijklmnopqrstuvwxyz'  # 26
     LettersCapitals = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'  # 26
     Digits = '0123456789'  # 10
-    Symbols = " '.,:;-_=()[]{}/°"  # 17
-    # Symbols = " '.,:-="  # 7
+    Symbols = ".,!-:?;'/()&#*+|\""  # 17
     DecodingList = ['same', 'lowercase']
 
     BLANK_SYMBOL = '$'
@@ -74,6 +74,7 @@ class Alphabet:
                                                          len(Symbols) + 1))
 
 
+# noinspection SpellCheckingInspection,SpellCheckingInspection
 class Params:
     def __init__(self, **kwargs):
         self.train_batch_size = kwargs.get('train_batch_size', 100)

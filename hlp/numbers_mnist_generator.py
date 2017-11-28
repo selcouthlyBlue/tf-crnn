@@ -40,7 +40,6 @@ def generate_random_image_numbers(mnist_dir, dataset, output_dir, csv_filename, 
         square_digits = -(square_digits - 1) * 255
         stacked_number = np.hstack(square_digits[:, :, 4:-4])
         stacked_label = ''.join(map(str, labels))
-        # chans3 = np.dstack([stacked_number]*3)
 
         # Save image number
         img_filename = '{:09}_{}.jpg'.format(i, stacked_label)
@@ -53,10 +52,10 @@ def generate_random_image_numbers(mnist_dir, dataset, output_dir, csv_filename, 
 
     root = './images'
     csv_path = os.path.join(output_dir, csv_filename)
-    with open(csv_path, 'w') as csvfile:
+    with open(csv_path, 'w') as csv_file:
         for i in tqdm(range(len(list_paths)), total=len(list_paths)):
-            csvwriter = csv.writer(csvfile, delimiter=' ')
-            csvwriter.writerow([os.path.join(root, list_paths[i]), list_labels[i]])
+            csv_writer = csv.writer(csv_file, delimiter=' ')
+            csv_writer.writerow([os.path.join(root, list_paths[i]), list_labels[i]])
 
 
 if __name__ == '__main__':

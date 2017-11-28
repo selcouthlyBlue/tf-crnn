@@ -10,7 +10,7 @@ This version uses the `tf.estimator.Estimator` to build the model.
 * `src/model.py` : definition of the model
 * `src/data_handler.py` : functions for data loading, preprocessing and data augmentation
 * `src/config.py` : `class Params` manages parameters of model and experiments
-* `src/decoding.py` : helper fucntion to transform characters to words
+* `src/decoding.py` : helper function to transform characters to words
 * `train.py` : script to launch for training the model, more info on the parameters and options inside
 * `export_model.py`: script to export a model once trained, i.e for serving
 * Extra : `hlp/numbers_mnist_generator.py` : generates a sequence of digits to form a number using the MNIST database
