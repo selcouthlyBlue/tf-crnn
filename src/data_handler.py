@@ -7,6 +7,10 @@ from .config import Params, CONST
 from typing import Tuple
 
 
+def resize_image(image, height_and_width: list):
+    return tf.image.resize_images(image, height_and_width)
+
+
 def data_loader(csv_filename: str, params: Params, batch_size: int = 128, data_augmentation: bool = False,
                 num_epochs: int = None, image_summaries: bool = False):
     def input_fn():
@@ -17,6 +21,7 @@ def data_loader(csv_filename: str, params: Params, batch_size: int = 128, data_a
         key, value = reader.read(filename_queue, name='file_reading_op')
 
         default_line = [['None'], ['None']]
+
         path, label = tf.decode_csv(value, record_defaults=default_line, field_delim=params.csv_delimiter,
                                     name='csv_reading_op')
 
@@ -74,7 +79,8 @@ def image_reading(path: str, resized_size: Tuple[int, int] = None, data_augmenta
 def random_rotation(img: tf.Tensor, max_rotation: float = 0.1, crop: bool = True) -> tf.Tensor:
     with tf.name_scope('RandomRotation'):
         rotation = tf.random_uniform([], -max_rotation, max_rotation)
-        rotated_image = tf.contrib.image.rotate(img, rotation, interpolation='BILINEAR')
+        # rotated_image = tf.contrib.image.rotate(img, rotation, interpolation='BILINEAR')
+        rotated_image = img
         if crop:
             rotation = tf.abs(rotation)
             original_shape = tf.shape(rotated_image)[:2]
@@ -86,7 +92,7 @@ def random_rotation(img: tf.Tensor, max_rotation: float = 0.1, crop: bool = True
             new_s = (old_s - tf.sin(rotation) * new_l) / tf.cos(rotation)
             new_h, new_w = tf.cond(h > w, lambda: [new_l, new_s], lambda: [new_s, new_l])
             new_h, new_w = tf.cast(new_h, tf.int32), tf.cast(new_w, tf.int32)
-            bb_begin = tf.cast(tf.ceil((h - new_h) / 2), tf.int32), tf.cast(tf.ceil((w - new_w) / 2), tf.int32)
+            bb_begin = cast(h, new_h), cast(w, new_w)
             rotated_image_crop = rotated_image[bb_begin[0]:h - bb_begin[0], bb_begin[1]:w - bb_begin[1], :]
 
             # If crop removes the entire image, keep the original image
@@ -97,12 +103,20 @@ def random_rotation(img: tf.Tensor, max_rotation: float = 0.1, crop: bool = True
         return rotated_image
 
 
+def cast(h, new_h):
+    return tf.cast(tf.ceil((h - new_h) / 2), tf.int32)
+
+
 def random_padding(image: tf.Tensor, max_pad_w: int = 5, max_pad_h: int = 10) -> tf.Tensor:
-    w_pad = list(np.random.randint(0, max_pad_w, size=[2]))
-    h_pad = list(np.random.randint(0, max_pad_h, size=[2]))
+    w_pad = random_pad(max_pad_w)
+    h_pad = random_pad(max_pad_h)
     padding = [h_pad, w_pad, [0, 0]]
 
     return tf.pad(image, padding, mode='REFLECT', name='random_padding')
+
+
+def random_pad(max_pad):
+    return list(np.random.randint(0, max_pad, size=[2]))
 
 
 def augment_data(image: tf.Tensor) -> tf.Tensor:
@@ -121,7 +135,8 @@ def augment_data(image: tf.Tensor) -> tf.Tensor:
         return image
 
 
-def padding_inputs_width(image: tf.Tensor, target_shape: Tuple[int, int], increment: int) -> Tuple[tf.Tensor, tf.Tensor]:
+def padding_inputs_width(image: tf.Tensor, target_shape: Tuple[int, int], increment: int) -> Tuple[
+    tf.Tensor, tf.Tensor]:
     target_ratio = target_shape[1] / target_shape[0]
     # Compute ratio to keep the same ratio in new image and get the size of padding
     # necessary to have the final desired shape
@@ -142,7 +157,7 @@ def padding_inputs_width(image: tf.Tensor, target_shape: Tuple[int, int], increm
         with tf.name_scope('mirror_padding'):
             pad = tf.subtract(target_w, new_w)
 
-            img_resized = tf.image.resize_images(image, [new_h, new_w])
+            img_resized = resize_image(image, [new_h, new_w])
 
             # Padding to have the desired width
             padding = [[0, 0], [0, pad], [0, 0]]
@@ -155,7 +170,7 @@ def padding_inputs_width(image: tf.Tensor, target_shape: Tuple[int, int], increm
 
     def replicate_fn():
         with tf.name_scope('replication_padding'):
-            img_resized = tf.image.resize_images(image, [new_h, new_w])
+            img_resized = resize_image(image, [new_h, new_w])
 
             # If one symmetry is not enough to have a full width
             # Count number of replications needed
@@ -209,8 +224,8 @@ def preprocess_image_for_prediction(fixed_height: int = 32, min_width: int = 8):
         new_width = tf.cast(tf.round((ratio * fixed_height) / increment) * increment, tf.int32)
 
         resized_image = tf.cond(new_width < tf.constant(min_width, dtype=tf.int32),
-                                true_fn=lambda: tf.image.resize_images(image, size=(fixed_height, min_width)),
-                                false_fn=lambda: tf.image.resize_images(image, size=(fixed_height, new_width))
+                                true_fn=lambda: resize_image(image, [fixed_height, min_width]),
+                                false_fn=lambda: resize_image(image, [fixed_height, new_width])
                                 )
 
         # Features to serve

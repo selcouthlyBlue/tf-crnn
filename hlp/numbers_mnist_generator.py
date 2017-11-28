@@ -16,10 +16,8 @@ def generate_random_image_numbers(mnist_dir, dataset, output_dir, csv_filename, 
     mnist = input_data.read_data_sets(mnist_dir, one_hot=False)
 
     output_dir_img = os.path.join(output_dir, 'images')
-    if not os.path.exists(output_dir):
-        os.mkdir(output_dir)
-    if not os.path.exists(output_dir_img):
-        os.mkdir(output_dir_img)
+    make_dir_if_it_doesnt_exist(output_dir)
+    make_dir_if_it_doesnt_exist(output_dir_img)
 
     if dataset == 'train':
         dataset = mnist.train
@@ -56,6 +54,11 @@ def generate_random_image_numbers(mnist_dir, dataset, output_dir, csv_filename, 
         for i in tqdm(range(len(list_paths)), total=len(list_paths)):
             csv_writer = csv.writer(csv_file, delimiter=' ')
             csv_writer.writerow([os.path.join(root, list_paths[i]), list_labels[i]])
+
+
+def make_dir_if_it_doesnt_exist(output_dir_img):
+    if not os.path.exists(output_dir_img):
+        os.mkdir(output_dir_img)
 
 
 if __name__ == '__main__':
